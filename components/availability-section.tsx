@@ -1,27 +1,18 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-// Booked dates keyed as "YYYY-M-D" (month is 0-indexed). Placeholder data —
-// swap for real bookings from your calendar/backend when ready.
-const BOOKED_DATES = new Set([
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 6),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 7),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 13),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 14),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 20),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 21),
-  keyFor(new Date().getFullYear(), new Date().getMonth(), 27),
-  keyFor(new Date().getFullYear(), new Date().getMonth() + 1, 3),
-  keyFor(new Date().getFullYear(), new Date().getMonth() + 1, 4),
-  keyFor(new Date().getFullYear(), new Date().getMonth() + 1, 11),
-  keyFor(new Date().getFullYear(), new Date().getMonth() + 1, 18),
-])
+function isoKey(year: number, month: number, day: number) {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
 
-function keyFor(year: number, month: number, day: number) {
-  const normalized = new Date(year, month, day)
-  return `${normalized.getFullYear()}-${normalized.getMonth()}-${normalized.getDate()}`
+const fetchBookedDates = async (url: string): Promise<string[]> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Failed to load availability')
+  const data: { dates: string[] } = await res.json()
+  return data.dates
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -48,6 +39,11 @@ export function AvailabilitySection() {
   }, [])
 
   const [view, setView] = useState(() => ({ year: today.getFullYear(), month: today.getMonth() }))
+
+  const { data: bookedList } = useSWR('/api/booked-dates', fetchBookedDates, {
+    refreshInterval: 60_000,
+  })
+  const bookedDates = useMemo(() => new Set(bookedList ?? []), [bookedList])
 
   const cells = useMemo(() => {
     const firstDay = new Date(view.year, view.month, 1).getDay()
@@ -120,7 +116,7 @@ export function AvailabilitySection() {
 
               const date = new Date(view.year, view.month, day)
               const isPast = date < today
-              const isBooked = BOOKED_DATES.has(keyFor(view.year, view.month, day))
+              const isBooked = bookedDates.has(isoKey(view.year, view.month, day))
               const isToday = date.getTime() === today.getTime()
 
               let state: 'past' | 'booked' | 'available' = 'available'
