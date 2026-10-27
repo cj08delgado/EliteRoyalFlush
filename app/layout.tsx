@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://royalflush.example.com'),
+  metadataBase: new URL('https://elitesroyalflush.com'),
   title: {
     default: 'Elite Royal Flush | Luxury Portable Restrooms for Events',
     template: '%s | Elite Royal Flush',
