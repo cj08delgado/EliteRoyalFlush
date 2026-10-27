@@ -74,6 +74,28 @@ export function PackagesSection() {
           ))}
         </div>
 
+        <article
+          aria-label="2-stall restroom trailer, coming soon"
+          className="mt-6 flex flex-col gap-5 rounded-3xl border border-dashed border-gold/50 bg-card p-7 md:flex-row md:items-center md:justify-between"
+        >
+          <div className="flex flex-col gap-2">
+            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-gold/50 px-3 py-1 text-xs font-semibold tracking-wide text-gold uppercase">
+              <Crown className="size-3.5" aria-hidden="true" />
+              Coming Soon
+            </span>
+            <h3 className="font-serif text-xl font-semibold text-balance md:text-2xl">
+              2-Stall Restroom Trailer
+            </h3>
+            <p className="text-sm leading-relaxed text-pretty text-muted-foreground">
+              The same Royal luxury in a more compact trailer, perfect for smaller gatherings.
+            </p>
+          </div>
+          <div className="flex items-baseline gap-2 md:flex-col md:items-end md:gap-0">
+            <span className="text-sm text-muted-foreground">Starting at</span>
+            <span className="font-serif text-4xl font-semibold text-gold">$500</span>
+          </div>
+        </article>
+
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Deliveries beyond 30 miles may include a small travel fee. Have something custom in mind?{' '}
           <a href="#deposit" className="font-semibold text-gold underline-offset-4 hover:underline">

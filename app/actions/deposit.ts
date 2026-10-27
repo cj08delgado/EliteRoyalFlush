@@ -1,6 +1,7 @@
 'use server'
 
 import { randomUUID } from 'node:crypto'
+import { getBookedDates } from '@/lib/bookings'
 import { PACKAGES } from '@/lib/packages'
 import { DEPOSIT_AMOUNT_CENTS, stripe } from '@/lib/stripe'
 
@@ -37,6 +38,11 @@ export async function startDepositCheckout(input: DepositDetails) {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter a valid email.')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(eventDate)) throw new Error('Please enter a valid event date.')
+
+  const bookedDates = await getBookedDates()
+  if (bookedDates.includes(eventDate)) {
+    throw new Error('Sorry, that date is already booked. Please choose another date.')
+  }
 
   const guests = clean(input.guests, 6).replace(/\D/g, '')
   const electricity = selectedPackage?.includesGenerator ? 'N/A (generator included)' : clean(input.electricity, 20)
