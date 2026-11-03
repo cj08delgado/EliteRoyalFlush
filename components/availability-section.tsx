@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useSyncExternalStore } from 'react'
 import useSWR from 'swr'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -31,14 +31,28 @@ const MONTHS = [
   'December',
 ]
 
-export function AvailabilitySection() {
-  const today = useMemo(() => {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
-  }, [])
+const noopSubscribe = () => () => {}
 
-  const [view, setView] = useState(() => ({ year: today.getFullYear(), month: today.getMonth() }))
+function getLocalTodayKey() {
+  const d = new Date()
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+}
+
+export function AvailabilitySection() {
+  // "Today" depends on the visitor's timezone, so it is only resolved on the client
+  // to keep server and client markup identical during hydration.
+  const todayKey = useSyncExternalStore(noopSubscribe, getLocalTodayKey, () => null)
+  const today = useMemo(() => {
+    if (!todayKey) return null
+    const [y, m, d] = todayKey.split('-').map(Number)
+    return new Date(y, m, d)
+  }, [todayKey])
+
+  const [viewOverride, setView] = useState<{ year: number; month: number } | null>(null)
+  const view = viewOverride ?? {
+    year: today?.getFullYear() ?? 2000,
+    month: today?.getMonth() ?? 0,
+  }
 
   const { data: bookedList } = useSWR('/api/booked-dates', fetchBookedDates, {
     refreshInterval: 60_000,
@@ -52,13 +66,16 @@ export function AvailabilitySection() {
     for (let i = 0; i < firstDay; i++) result.push(null)
     for (let d = 1; d <= daysInMonth; d++) result.push(d)
     return result
-  }, [view])
+  }, [view.year, view.month])
 
-  const atCurrentMonth = view.year === today.getFullYear() && view.month === today.getMonth()
+  const atCurrentMonth =
+    !today || (view.year === today.getFullYear() && view.month === today.getMonth())
 
   function shift(delta: number) {
+    if (!today) return
     setView((v) => {
-      const next = new Date(v.year, v.month + delta, 1)
+      const base = v ?? { year: today.getFullYear(), month: today.getMonth() }
+      const next = new Date(base.year, base.month + delta, 1)
       return { year: next.getFullYear(), month: next.getMonth() }
     })
   }
@@ -89,11 +106,12 @@ export function AvailabilitySection() {
               <ChevronLeft className="size-5" />
             </button>
             <h3 className="font-serif text-xl font-semibold md:text-2xl" aria-live="polite">
-              {MONTHS[view.month]} {view.year}
+              {today ? `${MONTHS[view.month]} ${view.year}` : '\u00A0'}
             </h3>
             <button
               type="button"
               onClick={() => shift(1)}
+              disabled={!today}
               aria-label="Next month"
               className="inline-flex size-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
             >
@@ -111,7 +129,16 @@ export function AvailabilitySection() {
               </div>
             ))}
 
-            {cells.map((day, index) => {
+            {!today &&
+              Array.from({ length: 35 }, (_, i) => (
+                <div
+                  key={`placeholder-${i}`}
+                  aria-hidden="true"
+                  className="aspect-square rounded-xl bg-muted/40"
+                />
+              ))}
+
+            {today && cells.map((day, index) => {
               if (day === null) return <div key={`empty-${index}`} aria-hidden="true" />
 
               const date = new Date(view.year, view.month, day)

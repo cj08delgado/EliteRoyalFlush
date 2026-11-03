@@ -82,5 +82,5 @@ export async function startDepositCheckout(input: DepositDetails) {
   )
 
   if (!session.client_secret) throw new Error('Unable to start checkout.')
-  return session.client_secret
+  return { clientSecret: session.client_secret, sessionId: session.id }
 }

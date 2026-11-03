@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Crown, Loader2 } from 'lucide-react'
 import { PACKAGES } from '@/lib/packages'
 import { startDepositCheckout } from '@/app/actions/deposit'
+import { notifyBooking } from '@/app/actions/notify-booking'
 import { DepositCheckout } from '@/components/deposit-checkout'
 
 const EVENT_TYPES = [
@@ -25,6 +26,7 @@ export function QuoteFormSection() {
   const [submitted, setSubmitted] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState('')
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -44,7 +46,7 @@ export function QuoteFormSection() {
     setPending(true)
     setError(null)
     try {
-      const secret = await startDepositCheckout({
+      const checkout = await startDepositCheckout({
         packageName: selectedPackage,
         name: field('name'),
         phone: field('phone'),
@@ -56,7 +58,8 @@ export function QuoteFormSection() {
         electricity: field('electricity'),
         details: field('details'),
       })
-      setClientSecret(secret)
+      setClientSecret(checkout.clientSecret)
+      setSessionId(checkout.sessionId)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
@@ -64,8 +67,14 @@ export function QuoteFormSection() {
     }
   }
 
+  function handleCheckoutComplete() {
+    setSubmitted(true)
+    if (sessionId) notifyBooking(sessionId).catch(() => {})
+  }
+
   function resetForm() {
     setClientSecret(null)
+    setSessionId(null)
     setSubmitted(false)
   }
 
@@ -119,7 +128,7 @@ export function QuoteFormSection() {
                 </button>
                 <p className="text-sm text-muted-foreground">Deposit due today: $200</p>
               </div>
-              <DepositCheckout clientSecret={clientSecret} onComplete={() => setSubmitted(true)} />
+              <DepositCheckout clientSecret={clientSecret} onComplete={handleCheckoutComplete} />
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="grid gap-5 sm:grid-cols-2">
