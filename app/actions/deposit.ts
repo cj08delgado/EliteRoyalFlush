@@ -53,6 +53,7 @@ export async function startDepositCheckout(input: DepositDetails) {
       redirect_on_completion: 'never',
       mode: 'payment',
       customer_email: email,
+      payment_intent_data: { receipt_email: email },
       line_items: [
         {
           quantity: 1,
