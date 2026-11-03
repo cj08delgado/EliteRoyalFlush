@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { stripe } from '@/lib/stripe'
 
 const OWNER_EMAIL = 'EliteRoyalFlush7@gmail.com'
+const FALLBACK_EMAIL = 'cj08delgado@gmail.com'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -61,18 +62,31 @@ export async function notifyBooking(sessionId: string) {
 
   const text = rows.map(([label, value]) => `${label}: ${value}`).join('\n')
 
-  const { error } = await resend.emails.send({
-    from: `Elite Royal Flush Bookings <bookings@${process.env.RESEND_EMAIL_DOMAIN}>`,
-    to: OWNER_EMAIL,
+  const message = {
     replyTo: customerEmail.includes('@') ? customerEmail : undefined,
     subject: `New booking: ${meta.name ?? 'Customer'} — ${meta.eventDate ?? ''}`,
     html,
     text,
+  }
+
+  const primary = await resend.emails.send({
+    ...message,
+    from: `Elite Royal Flush Bookings <bookings@${process.env.RESEND_EMAIL_DOMAIN}>`,
+    to: OWNER_EMAIL,
   })
 
-  if (error) {
-    console.error('Booking email failed:', error)
-    return
+  if (primary.error) {
+    console.error('Booking email failed, trying fallback:', primary.error)
+    // Until the sending domain is verified, Resend only allows its test sender to reach the account owner.
+    const fallback = await resend.emails.send({
+      ...message,
+      from: 'Elite Royal Flush Bookings <onboarding@resend.dev>',
+      to: FALLBACK_EMAIL,
+    })
+    if (fallback.error) {
+      console.error('Fallback booking email failed:', fallback.error)
+      return
+    }
   }
 
   await stripe.checkout.sessions.update(sessionId, { metadata: { notified: 'true' } })
