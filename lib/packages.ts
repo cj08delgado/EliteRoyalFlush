@@ -36,7 +36,7 @@ export const PACKAGES: Package[] = [
     ],
   },
   {
-    name: 'Royal Wedding Experience',
+    name: 'Royal Lux Experience',
     price: 1000,
     tagline: 'A white-glove touch for your most important day.',
     featured: true,
@@ -54,7 +54,7 @@ export const PACKAGES: Package[] = [
     tagline: 'Our top-tier, fully-appointed luxury package.',
     includesGenerator: true,
     features: [
-      'Everything in Royal Wedding Experience, plus:',
+      'Everything in Royal Lux Experience, plus:',
       'Extended generator support',
       'Custom décor touch (floral or theme accent)',
       'Complimentary welcome sign with your event name',
