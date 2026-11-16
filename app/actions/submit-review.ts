@@ -1,6 +1,9 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
+import { db } from '@/lib/db'
+import { reviews } from '@/lib/db/schema'
 
 const OWNER_EMAIL = 'EliteRoyalFlush7@gmail.com'
 const FALLBACK_EMAIL = 'cj08delgado@gmail.com'
@@ -50,6 +53,21 @@ export async function submitReview(
     return { status: 'error', message: 'Please enter a valid email address.' }
   }
 
+  try {
+    await db.insert(reviews).values({
+      name,
+      email: email || null,
+      event: event || null,
+      rating,
+      review,
+    })
+  } catch (error) {
+    console.error('Saving review failed:', error)
+    return { status: 'error', message: 'Something went wrong saving your review. Please try again.' }
+  }
+
+  revalidatePath('/reviews')
+
   const rows: [string, string][] = [
     ['Name', name],
     ['Email', email || 'Not provided'],
@@ -98,9 +116,8 @@ export async function submitReview(
     })
     if (fallback.error) {
       console.error('Fallback review email failed:', fallback.error)
-      return { status: 'error', message: 'Something went wrong sending your review. Please try again.' }
     }
   }
 
-  return { status: 'success', message: 'Thank you! Your review has been sent to our team.' }
+  return { status: 'success', message: 'Thank you! Your review is now live on this page.' }
 }

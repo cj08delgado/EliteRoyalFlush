@@ -25,7 +25,8 @@ export function ReviewFormSection() {
           </h2>
           <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
             Your feedback helps future hosts plan with confidence and helps us keep raising the
-            standard. Reviews go straight to our team.
+            standard. Your review appears on this page as soon as you submit it. Your email is never
+            shown publicly.
           </p>
         </div>
 

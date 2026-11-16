@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import { Star } from 'lucide-react'
-import { REVIEWS } from '@/lib/reviews'
+import type { Review } from '@/lib/reviews'
 import { StarRating } from './star-rating'
 
-export function ReviewsHero() {
-  const average = REVIEWS.reduce((sum, r) => sum + r.rating, 0) / REVIEWS.length
+export function ReviewsHero({ reviews }: { reviews: Review[] }) {
+  const average = reviews.length
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0
 
   return (
     <section id="top" className="relative isolate overflow-hidden">
@@ -36,11 +38,22 @@ export function ReviewsHero() {
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-col gap-2 rounded-3xl border border-background/15 bg-background/5 p-7 text-background backdrop-blur-md">
-          <p className="font-serif text-5xl font-semibold text-gold">{average.toFixed(1)}</p>
-          <StarRating rating={average} />
-          <p className="text-sm text-background/70">Average from {REVIEWS.length} client reviews</p>
-        </div>
+        {reviews.length > 0 ? (
+          <div className="flex shrink-0 flex-col gap-2 rounded-3xl border border-background/15 bg-background/5 p-7 text-background backdrop-blur-md">
+            <p className="font-serif text-5xl font-semibold text-gold">{average.toFixed(1)}</p>
+            <StarRating rating={average} />
+            <p className="text-sm text-background/70">
+              Average from {reviews.length} client {reviews.length === 1 ? 'review' : 'reviews'}
+            </p>
+          </div>
+        ) : (
+          <a
+            href="#leave-review"
+            className="inline-flex shrink-0 items-center justify-center self-start rounded-full bg-gold px-7 py-3.5 text-base font-semibold text-gold-foreground transition-transform hover:scale-[1.02] lg:self-end"
+          >
+            Be the first to review
+          </a>
+        )}
       </div>
     </section>
   )

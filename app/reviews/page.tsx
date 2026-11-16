@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { ReviewsHero } from '@/components/reviews/reviews-hero'
 import { ReviewsGrid } from '@/components/reviews/reviews-grid'
 import { ReviewFormSection } from '@/components/reviews/review-form-section'
+import { getReviews } from '@/lib/reviews'
 
 export const metadata: Metadata = {
   title: 'Reviews',
@@ -11,13 +12,17 @@ export const metadata: Metadata = {
     'Read what clients say about Elite Royal Flush luxury portable restrooms for weddings, parties, and corporate events — and share your own experience.',
 }
 
-export default function ReviewsPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ReviewsPage() {
+  const reviews = await getReviews()
+
   return (
     <>
       <SiteHeader />
       <main>
-        <ReviewsHero />
-        <ReviewsGrid />
+        <ReviewsHero reviews={reviews} />
+        <ReviewsGrid reviews={reviews} />
         <ReviewFormSection />
       </main>
       <SiteFooter />
