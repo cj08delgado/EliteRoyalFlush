@@ -5,12 +5,13 @@ import { Crown, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
-  { label: 'Services', href: '#services' },
-  { label: 'Packages', href: '#packages' },
-  { label: 'Availability', href: '#availability' },
-  { label: 'Why Us', href: '#why' },
-  { label: 'How It Works', href: '#how' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', href: '/#services' },
+  { label: 'Packages', href: '/#packages' },
+  { label: 'Availability', href: '/#availability' },
+  { label: 'Why Us', href: '/#why' },
+  { label: 'How It Works', href: '/#how' },
+  { label: 'Reviews', href: '/reviews' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 export function SiteHeader() {
@@ -35,7 +36,7 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:h-20 md:px-8">
         <a
-          href="#top"
+          href="/"
           className={cn(
             'flex items-center gap-2.5 transition-colors',
             scrolled ? 'text-foreground' : 'text-background',
@@ -64,7 +65,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <a
-            href="#deposit"
+            href="/#deposit"
             className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-gold-foreground transition-transform hover:scale-[1.03] sm:inline-flex"
           >
             Make a Deposit
@@ -98,7 +99,7 @@ export function SiteHeader() {
               </a>
             ))}
             <a
-              href="#deposit"
+              href="/#deposit"
               onClick={() => setOpen(false)}
               className="mt-4 inline-flex items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-semibold text-gold-foreground"
             >
