@@ -1,12 +1,13 @@
 import { Crown } from 'lucide-react'
 
 const FOOTER_LINKS = [
-  { label: 'Services', href: '#services' },
-  { label: 'Availability', href: '#availability' },
-  { label: 'Why Us', href: '#why' },
-  { label: 'How It Works', href: '#how' },
-  { label: 'Make a Deposit', href: '#deposit' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', href: '/#services' },
+  { label: 'Availability', href: '/#availability' },
+  { label: 'Why Us', href: '/#why' },
+  { label: 'How It Works', href: '/#how' },
+  { label: 'Reviews', href: '/reviews' },
+  { label: 'Make a Deposit', href: '/#deposit' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 export function SiteFooter() {
